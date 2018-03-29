@@ -202,7 +202,7 @@ func NewSession(host string, auth *AuthMethod) (*Junos, error) {
 
 	s, err := netconf.DialSSH(host, clientConfig)
 	if err != nil {
-		return nil, errors.New("error connecting to " + host + " - " + err)
+		return nil, errors.New("error connecting to " + host + " - " + err.Error())
 	}
 
 	reply, err := s.Exec(netconf.RawMethod(rpcVersion))
