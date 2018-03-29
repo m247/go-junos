@@ -383,6 +383,17 @@ type Rule struct {
 	} `xml:"policy-action>policy-tcp-options"`
 }
 
+type AlarmTable struct {
+	Entries []AlarmEntry `xml:"alarm-detail"`
+}
+
+type AlarmEntry struct {
+	Class string `xml:"alarm-class"`
+	Description string `xml:"alarm-description"`
+	ShortDescription string `xml:"alarm-short-description"`
+	Type string `xml:"alarm-type"`
+}
+
 // Views contains the information for the specific views. Note that some views aren't available for specific
 // hardware platforms, such as the "VirtualChassis" view on an SRX.
 type Views struct {
@@ -398,6 +409,7 @@ type Views struct {
 	SourceNat      SourceNats
 	Storage        Storage
 	FirewallPolicy FirewallPolicy
+	Alarm		   AlarmTable
 }
 
 var (
@@ -414,6 +426,7 @@ var (
 		"sourcenat":      "<get-source-nat-rule-sets-information><all/></get-source-nat-rule-sets-information>",
 		"storage":        "<get-system-storage/>",
 		"firewallpolicy": "<get-firewall-policies/>",
+		"alarm":		  "<get-alarm-information/>",
 	}
 )
 
@@ -669,6 +682,15 @@ func (j *Junos) View(view string) (*Views, error) {
 
 			results.FirewallPolicy = fwpolicy
 		}
+	case "alarm":
+		var alarmTable AlarmTable
+		formatted := strings.Replace(reply.Data, "\n", "", -1)
+
+		if err := xml.Unmarshal([]byte(formatted), &alarmTable); err != nil {
+			return nil, err
+		}
+
+		results.Alarm = alarmTable
 	}
 
 	return &results, nil
