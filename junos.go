@@ -255,7 +255,12 @@ func NewSession(host string, auth *AuthMethod) (*Junos, error) {
 	hostname := facts.Hostname
 	version := rex.FindStringSubmatch(facts.PackageInfo[0].SoftwareVersion[0])
 	model := strings.ToUpper(facts.Platform)
-	res = append(res, RoutingEngine{Model: model, Version: version[1]})
+	if len(version) != 2 {
+		fmt.Printf("Bad version: %v", version)
+		res = append(res, RoutingEngine{Model: model, Version: "Bad version"})
+	} else {
+		res = append(res, RoutingEngine{Model: model, Version: version[1]})
+	}
 
 	return &Junos{
 		Session:        s,
